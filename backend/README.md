@@ -30,6 +30,43 @@ http://localhost:5080/
 
 O passo de build copia automaticamente o `index.html` da raiz do repositório para `wwwroot/` (alvo MSBuild `CopyFrontend`), então edite sempre o `index.html` da raiz.
 
+## Publicar no IIS
+
+1. Instale o **[ASP.NET Core Hosting Bundle](https://dotnet.microsoft.com/download/dotnet/9.0)** (.NET 9).
+2. Publique a API (não aponte o IIS só para o `index.html` da raiz do repo):
+
+   ```powershell
+   cd backend
+   dotnet publish -c Release -o C:\inetpub\wwwroot\gestao-provisao-receita
+   ```
+
+3. No **Gerenciador do IIS**, crie um site ou aplicativo com o caminho físico da pasta publicada acima.
+4. Application Pool: **.NET CLR = Sem código gerenciado**.
+5. Conceda ao identity do pool **Leitura** na pasta publicada e **Modificar** em `App_Data` (connection string e chaves).
+6. Evite hospedar dentro de `Documents` sem permissões extras; prefira `inetpub` ou outra pasta dedicada.
+
+Se o site for uma **subaplicação** (ex.: `http://localhost/gestao-provisao-receita`), o frontend resolve as URLs da API em relação à URL atual. O backend usa `ASPNETCORE_APPL_PATH` (definido pelo módulo IIS) ou `PathBase` em `appsettings.json` se precisar forçar manualmente.
+
+### Erro HTTP 500.30 (app failed to start)
+
+Causas frequentes neste projeto:
+
+1. **Caminho físico errado** — deve apontar para a pasta **publicada** (com `GestaoProvisao.Api.exe` e `web.config`), não para a raiz do repositório com só o `index.html`.
+2. **Pasta em `Documents`** — o identity do Application Pool muitas vezes **não atravessa** `C:\Users\<você>\...`. Prefira `C:\temp\gestao-provisao-receita` ou `C:\inetpub\wwwroot\gestao-provisao-receita`.
+3. **Permissão em `App_Data` e `logs`** — a API grava chaves em `App_Data/keys` na inicialização; o pool precisa de **Modificar** na pasta publicada.
+
+Publicação recomendada (script):
+
+```powershell
+cd backend
+.\scripts\publish-iis.ps1
+# ou: .\scripts\publish-iis.ps1 -OutputPath "C:\inetpub\wwwroot\gestao-provisao-receita"
+```
+
+No IIS, caminho físico = pasta do script. Application Pool: **Sem código gerenciado**. Reinicie o pool.
+
+Se ainda falhar, veja `logs\stdout_*.log` na pasta publicada (`stdoutLogEnabled` no `web.config`).
+
 ## Fluxo de uso
 
 1. Abra a aplicação e vá em **Configurações**.
@@ -76,9 +113,19 @@ Notas sobre a query:
 
 - **Senha cifrada em repouso**: a connection string é protegida com `IDataProtector` e gravada em `App_Data/connection.dat`. As chaves de proteção ficam em `App_Data/keys/`.
 - A senha **nunca** é retornada em texto plano: `GET /api/config` devolve apenas uma máscara (`passwordMask`).
-- Consultas **parametrizadas** via Dapper; `Connection Timeout` configurável; `Encrypt`/`TrustServerCertificate` controlados pela tela.
-- A pasta `App_Data/` está no `.gitignore` (segredos e chaves não entram no controle de versão).
-- Em produção, considere um cofre de segredos gerenciado (Azure Key Vault, etc.) e proteja o acesso à API.
+- **Somente leitura (defesa em camadas)**:
+  - A query configurada em `Provisao:Query` passa pelo guard `SqlReadOnlyGuard`: precisa iniciar com `SELECT` ou `WITH` (CTE) e é rejeitada se contiver DML/DDL/execução (`INSERT`, `UPDATE`, `DELETE`, `MERGE`, `DROP`, `ALTER`, `CREATE`, `TRUNCATE`, `EXEC`/`EXECUTE`, `GRANT`, `REVOKE`, `INTO`, `sp_`, `xp_`) ou múltiplos statements (`;`).
+  - A conexão é aberta com `ApplicationIntent=ReadOnly` (sinaliza intenção de leitura ao SQL Server / roteia para réplica em Always On).
+  - O login do Application Pool recebe **apenas** `db_datareader` (sem `db_datawriter`/`db_ddladmin`) — ver `scripts/sql/grant-iis-apppool-login.sql`.
+- **Validação de certificado por padrão**: `TrustServerCertificate=false` (valida o certificado do servidor). Habilite pela tela apenas em ambientes com certificado autoassinado conhecido. `Encrypt` e `Connection Timeout` também são controlados pela tela.
+- **Sem vazamento de detalhes internos**: erros retornam mensagens genéricas ao cliente; a exceção completa é registrada apenas nos logs do servidor (handler global, `GET /api/provisao` e `POST /api/config/test`).
+- Consultas **parametrizadas** via Dapper.
+- A pasta `App_Data/` (e `bin/`, `obj/`, `publish/`, `*.dat`, `logs/`) está no `.gitignore` (segredos, chaves e artefatos de build não entram no controle de versão).
+
+### Próximos passos de segurança
+
+- A API **não possui autenticação**: qualquer um que alcance a URL pode salvar credenciais e ler dados. Recomenda-se proteger o acesso via **Windows Authentication no IIS** ou uma **API key** antes de expor o serviço.
+- Em produção, considere um cofre de segredos gerenciado (Azure Key Vault, etc.).
 
 ## Estrutura
 

@@ -1,0 +1,25 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+bin/
+obj/
+publish/
+
+# Publish artifacts
+[Pp]ublish/
+
+# Data Protection keys e segredos
+App_Data/
+App_Data/keys/
+*.dat
+
+# Logs
+logs/
+*.log
+
+# Visual Studio
+.vs/
+*.user
+
+# Misc
+*.suo

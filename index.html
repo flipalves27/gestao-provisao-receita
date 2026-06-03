@@ -724,7 +724,10 @@
 
 <script>
 /* ============ CONFIG / CONSTS ============ */
-const API_BASE = '';
+/** Resolve /api/* em relacao a URL atual (ex.: subapp IIS em /gestao-provisao-receita). */
+function apiUrl(path) {
+  return new URL(path.replace(/^\//, ''), window.location.href).toString();
+}
 const TABLE_COLSPAN = 11;
 
 // Usuario exibido no topo (parametrizado em um unico ponto).
@@ -1027,7 +1030,7 @@ function cobrarSelecionados() {
 async function loadData() {
   renderLoadingState();
   try {
-    const res = await fetch(API_BASE + '/api/provisao', { headers: { 'Accept': 'application/json' } });
+    const res = await fetch(apiUrl('api/provisao'), { headers: { 'Accept': 'application/json' } });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const rows = await res.json();
     DATA = Array.isArray(rows) ? rows : [];
@@ -1079,7 +1082,7 @@ function goToConfig() {
 async function loadConfigForm() {
   if (configLoaded) return;
   try {
-    const res = await fetch(API_BASE + '/api/config', { headers: { 'Accept': 'application/json' } });
+    const res = await fetch(apiUrl('api/config'), { headers: { 'Accept': 'application/json' } });
     if (!res.ok) return;
     const cfg = await res.json();
     if (!cfg || !cfg.isConfigured) return;
@@ -1202,7 +1205,7 @@ async function saveConfig() {
     return;
   }
   try {
-    const res = await fetch(API_BASE + '/api/config', {
+    const res = await fetch(apiUrl('api/config'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cfg),
@@ -1264,7 +1267,7 @@ async function testConnection() {
   showTestResult('loading', 'Estabelecendo conexão...', 'Validando rede, autenticação e acesso ao banco de dados.');
 
   try {
-    const res = await fetch(API_BASE + '/api/config/test', {
+    const res = await fetch(apiUrl('api/config/test'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cfg),

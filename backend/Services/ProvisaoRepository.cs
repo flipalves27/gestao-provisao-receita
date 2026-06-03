@@ -32,6 +32,8 @@ public class ProvisaoRepository : IProvisaoRepository
                 "A consulta nao esta configurada. Defina 'Provisao:Query' em appsettings.json.");
         }
 
+        SqlReadOnlyGuard.EnsureReadOnly(query);
+
         var commandTimeout = _configuration.GetValue<int?>("Provisao:CommandTimeoutSeconds") ?? 60;
 
         await using var connection = _factory.CreateFromSaved();

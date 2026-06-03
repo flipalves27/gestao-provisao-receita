@@ -33,6 +33,9 @@ public class SqlConnectionFactory : ISqlConnectionFactory
             TrustServerCertificate = config.TrustServerCertificate,
             ConnectTimeout = config.ConnectionTimeout > 0 ? config.ConnectionTimeout : 30,
             ApplicationName = "GestaoProvisaoReceita",
+            // Backend e somente-leitura: sinaliza intencao de leitura ao SQL Server
+            // (roteia para replica secundaria em Always On, quando disponivel).
+            ApplicationIntent = ApplicationIntent.ReadOnly,
         };
 
         if (string.Equals(config.AuthMode, "windows", StringComparison.OrdinalIgnoreCase))

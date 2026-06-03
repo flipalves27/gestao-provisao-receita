@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>GestaoProvisao.Api</RootNamespace>
     <AssemblyName>GestaoProvisao.Api</AssemblyName>
+    <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +18,13 @@
   <Target Name="CopyFrontend" BeforeTargets="Build;Run">
     <MakeDir Directories="wwwroot" />
     <Copy SourceFiles="..\index.html" DestinationFiles="wwwroot\index.html" SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Pastas exigidas pelo IIS (logs do ANCM + Data Protection / connection.dat). -->
+  <Target Name="PrepareIisFolders" AfterTargets="Publish">
+    <MakeDir Directories="$(PublishDir)App_Data\keys;$(PublishDir)logs" />
+    <!-- Evita que o IIS execute um .exe de publish self-contained antigo (SqlClient quebra). -->
+    <Delete Files="$(PublishDir)GestaoProvisao.Api.exe" Condition="Exists('$(PublishDir)GestaoProvisao.Api.exe')" />
   </Target>
 
 </Project>

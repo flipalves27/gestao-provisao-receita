@@ -33,14 +33,10 @@ public class ConfigController : ControllerBase
         return Ok(view);
     }
 
-    /// <summary>Valida e salva a configuracao cifrada.</summary>
+    /// <summary>Valida (via ModelState) e salva a configuracao cifrada.</summary>
     [HttpPost]
     public ActionResult Save([FromBody] ConnectionConfig config)
     {
-        var validation = Validate(config);
-        if (validation is not null)
-            return BadRequest(new { message = validation });
-
         _store.Save(config);
         _logger.LogInformation("Configuracao de conexao salva para o servidor {Server}", config.Server);
         return Ok(new { ok = true, message = "Configuracao salva com sucesso." });
@@ -52,28 +48,15 @@ public class ConfigController : ControllerBase
         [FromBody] ConnectionConfig config,
         CancellationToken ct)
     {
-        var validation = Validate(config);
-        if (validation is not null)
-            return BadRequest(new { message = validation });
-
-        var result = await _tester.TestAsync(config, ct);
-        return Ok(result);
-    }
-
-    private static string? Validate(ConnectionConfig config)
-    {
-        if (config is null)
-            return "Corpo da requisicao ausente.";
-        if (string.IsNullOrWhiteSpace(config.Server))
-            return "Informe o endereco do servidor SQL Server.";
-        if (string.IsNullOrWhiteSpace(config.Database))
-            return "Informe o nome do banco de dados de destino.";
-        if (!string.Equals(config.AuthMode, "windows", StringComparison.OrdinalIgnoreCase)
-            && (string.IsNullOrWhiteSpace(config.User) || string.IsNullOrEmpty(config.Password)))
+        try
         {
-            return "Usuario e senha sao obrigatorios na autenticacao SQL Server.";
+            var result = await _tester.TestAsync(config, ct);
+            return Ok(result);
         }
-
-        return null;
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erro inesperado no teste de conexao");
+            return StatusCode(500, new { message = "Erro inesperado ao testar a conexao. Consulte os logs do servidor para detalhes." });
+        }
     }
 }

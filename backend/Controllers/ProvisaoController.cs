@@ -41,7 +41,7 @@ public class ProvisaoController : ControllerBase
         {
             _logger.LogError(ex, "Falha ao consultar provisao de receita");
             return StatusCode(StatusCodes.Status502BadGateway,
-                new { message = "Falha ao consultar o banco de dados: " + ex.Message });
+                new { message = "Falha ao consultar o banco de dados. Verifique a configuracao da conexao e tente novamente." });
         }
     }
 }
