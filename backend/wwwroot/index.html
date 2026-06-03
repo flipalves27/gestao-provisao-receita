@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Austral Holding — Gestão de Cobrança</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+  :root {
+    --gold: #B8965A;
+    --gold-light: #D4B07A;
+    --gold-pale: #F5EDD8;
+    --navy: #0D1B2A;
+    --navy-mid: #1A2E42;
+    --navy-light: #243A52;
+    --surface: #FFFFFF;
+    --surface-2: #F7F8FA;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --text-primary: #0D1B2A;
+    --text-secondary: #4A5568;
+    --text-muted: #8896A5;
+    --danger: #C53030;
+    --danger-bg: #FFF5F5;
+    --warning: #C05621;
+    --warning-bg: #FFFAF0;
+    --success: #276749;
+    --success-bg: #F0FFF4;
+    --info: #2B6CB0;
+    --info-bg: #EBF8FF;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #EEF0F4; color: var(--text-primary); font-size: 14px; min-height: 100vh; }
+
+  /* TOPBAR */
+  .topbar { background: var(--navy); height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 100; }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark { width: 32px; height: 32px; background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .brand-mark span { color: var(--navy); font-weight: 700; font-size: 13px; letter-spacing: 0.5px; }
+  .brand-name { color: #FFFFFF; font-weight: 500; font-size: 15px; letter-spacing: 0.3px; }
+  .brand-sub { color: var(--gold-light); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; }
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+  .topbar-date { color: rgba(255,255,255,0.5); font-size: 12px; }
+  .topbar-user { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.8); font-size: 13px; }
+  .avatar-sm { width: 28px; height: 28px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--navy); }
+
+  /* LAYOUT */
+  .layout { display: flex; min-height: calc(100vh - 60px); }
+  .sidebar { width: 220px; background: var(--navy-mid); padding: 20px 0 60px; flex-shrink: 0; transition: width 0.22s cubic-bezier(.4,0,.2,1); overflow: hidden; position: relative; }
+  .sidebar.collapsed { width: 60px; }
+  .nav-section { padding: 0 12px; margin-bottom: 24px; transition: padding 0.22s; }
+  .sidebar.collapsed .nav-section { padding: 0 8px; }
+  .nav-label { font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0 8px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; transition: opacity 0.15s, height 0.15s, margin 0.15s; }
+  .sidebar.collapsed .nav-label { opacity: 0; height: 0; margin: 0; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; cursor: pointer; color: rgba(255,255,255,0.55); font-size: 13px; transition: all 0.15s; margin-bottom: 2px; white-space: nowrap; overflow: hidden; position: relative; }
+  .sidebar.collapsed .nav-item { padding: 10px; justify-content: center; gap: 0; }
+  .nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); }
+  .nav-item.active { background: rgba(184,150,90,0.18); color: var(--gold-light); }
+  .nav-item i { font-size: 17px; flex-shrink: 0; }
+  .nav-item-label { transition: opacity 0.15s; overflow: hidden; }
+  .sidebar.collapsed .nav-item-label { opacity: 0; width: 0; }
+  .nav-badge { margin-left: auto; background: var(--gold); color: var(--navy); font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; transition: opacity 0.15s; }
+  .sidebar.collapsed .nav-badge { opacity: 0; width: 0; overflow: hidden; padding: 0; margin: 0; }
+  .sidebar.collapsed .nav-item:hover::after { content: attr(data-label); position: absolute; left: 58px; background: var(--navy); color: #fff; font-size: 12px; padding: 5px 11px; border-radius: 7px; white-space: nowrap; z-index: 500; pointer-events: none; box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
+  .sidebar-toggle { position: absolute; bottom: 14px; left: 0; right: 0; display: flex; justify-content: center; }
+  .toggle-btn { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; color: rgba(255,255,255,0.5); transition: all 0.15s; font-size: 16px; }
+  .toggle-btn:hover { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.9); }
+
+  /* MAIN */
+  .main { flex: 1; padding: 28px; overflow: hidden; }
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+  .page-title { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+  .page-subtitle { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  .page-actions { display: flex; gap: 10px; }
+  .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: var(--radius); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: none; }
+  .btn-primary { background: var(--navy); color: #fff; }
+  .btn-primary:hover { background: var(--navy-light); }
+  .btn-ghost { background: transparent; border: 1px solid var(--border-strong); color: var(--text-secondary); }
+  .btn-ghost:hover { background: var(--surface-2); }
+  .btn-gold { background: var(--gold); color: var(--navy); font-weight: 600; }
+  .btn-gold:hover { background: var(--gold-light); }
+
+  /* KPI CARDS */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .kpi-card { background: var(--surface); border-radius: var(--radius-lg); padding: 18px 20px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .kpi-label { font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .kpi-value { font-size: 24px; font-weight: 600; color: var(--text-primary); line-height: 1; }
+  .kpi-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+  .kpi-danger .kpi-value { color: var(--danger); }
+  .kpi-warning .kpi-value { color: var(--warning); }
+  .kpi-gold .kpi-value { color: var(--gold); }
+
+  /* FILTERS */
+  .filters-bar { background: var(--surface); border-radius: var(--radius-lg); padding: 14px 18px; border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .search-box { display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; flex: 1; min-width: 200px; }
+  .search-box input { border: none; background: transparent; font-family: inherit; font-size: 13px; color: var(--text-primary); outline: none; width: 100%; }
+  .search-box i { color: var(--text-muted); font-size: 16px; }
+  .filter-select { padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; color: var(--text-secondary); background: var(--surface-2); cursor: pointer; outline: none; }
+  .filter-tag { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+  .filter-tag.all { background: var(--navy); color: #fff; }
+  .filter-tag.critico { background: var(--danger-bg); color: var(--danger); border-color: rgba(197,48,48,0.2); }
+  .filter-tag.alto { background: var(--warning-bg); color: var(--warning); border-color: rgba(192,86,33,0.2); }
+  .filter-tag.normal { background: var(--info-bg); color: var(--info); border-color: rgba(43,108,176,0.2); }
+  .filter-tag:hover { opacity: 0.8; }
+
+  /* TABLE */
+  .table-card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+  .table-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .table-title { font-size: 14px; font-weight: 600; }
+  .table-count { font-size: 12px; color: var(--text-muted); }
+  .table-wrap { overflow-x: auto; max-height: 480px; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-muted); background: var(--surface-2); border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top: 0; z-index: 1; }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; cursor: pointer; }
+  tbody tr:hover { background: #F5F6FA; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 10px 14px; font-size: 13px; color: var(--text-primary); white-space: nowrap; }
+  .td-company { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+  .td-grupo { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); font-size: 12px; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-danger { background: var(--danger-bg); color: var(--danger); }
+  .badge-warning { background: var(--warning-bg); color: var(--warning); }
+  .badge-info { background: var(--info-bg); color: var(--info); }
+  .badge-success { background: var(--success-bg); color: var(--success); }
+  .badge-neutral { background: var(--surface-2); color: var(--text-secondary); }
+  .atraso-bar { display: flex; align-items: center; gap: 8px; }
+  .atraso-dots { display: flex; gap: 3px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-strong); }
+  .dot.filled-danger { background: var(--danger); }
+  .dot.filled-warning { background: var(--warning); }
+  .dot.filled-info { background: var(--info); }
+  .valor-cell { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-secondary); }
+  .valor-cell.alto { color: var(--navy); font-weight: 600; }
+  .cell-mono { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-muted); }
+  .cell-mono.dark { color: var(--text-primary); }
+  .table-state td { padding: 48px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+  .table-state .state-icon { font-size: 30px; display: block; margin-bottom: 10px; opacity: 0.7; }
+  .table-state.error td { color: var(--danger); }
+  .table-state .state-link { margin-top: 12px; }
+  .checkbox-cell { width: 36px; }
+  .row-check { width: 16px; height: 16px; border-radius: 4px; border: 1.5px solid var(--border-strong); cursor: pointer; accent-color: var(--navy); }
+  .action-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 7px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .action-btn:hover { background: var(--surface-2); color: var(--text-primary); }
+  .action-btn.cobrar { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .action-btn.cobrar:hover { background: var(--navy-light); }
+
+  /* MODAL OVERLAY */
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(13,27,42,0.65); z-index: 200; align-items: center; justify-content: center; }
+  .overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 18px; width: 580px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-md); }
+  .modal-header { padding: 24px 28px 0; display: flex; align-items: flex-start; justify-content: space-between; }
+  .modal-close { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 18px; }
+  .modal-close:hover { background: var(--surface-2); }
+  .modal-body { padding: 20px 28px 28px; }
+  .person-card { display: flex; align-items: center; gap: 14px; padding: 16px; background: var(--surface-2); border-radius: var(--radius-lg); margin-bottom: 20px; border: 1px solid var(--border); }
+  .person-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); display: flex; align-items: center; justify-content: center; color: var(--gold-light); font-weight: 700; font-size: 16px; flex-shrink: 0; }
+  .person-name { font-size: 15px; font-weight: 600; }
+  .person-grupo { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .person-contact { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .contact-item { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  .contact-item i { font-size: 18px; color: var(--text-muted); }
+  .contact-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+  .contact-value { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .modal-section-title { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+  .debt-table-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 6px; background: var(--surface); }
+  .debt-date { font-size: 12px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+  .debt-valor { font-size: 13px; font-weight: 600; font-family: 'DM Mono', monospace; }
+  .debt-apolice { font-size: 11px; color: var(--text-muted); }
+
+  /* STATUS FLOW */
+  .status-flow { display: flex; gap: 0; margin-bottom: 20px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+  .flow-step { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; text-align: center; cursor: pointer; background: var(--surface-2); border-right: 1px solid var(--border); transition: all 0.15s; color: var(--text-muted); line-height: 1.3; }
+  .flow-step:last-child { border-right: none; }
+  .flow-step i { font-size: 18px; }
+  .flow-step.active { background: var(--navy); color: #fff; }
+  .flow-step.done { background: var(--success-bg); color: var(--success); }
+  .flow-step:hover:not(.active):not(.done) { background: var(--surface); color: var(--text-primary); }
+
+  .obs-textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius); font-family: inherit; font-size: 13px; color: var(--text-primary); background: var(--surface); resize: vertical; min-height: 80px; outline: none; margin-bottom: 16px; }
+  .obs-textarea:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(13,27,42,0.07); }
+
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  /* PRORROGAÇÃO PILLS */
+  .prorr-pill { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; font-size: 11px; font-weight: 700; margin-right: 4px; }
+  .prorr-0 { background: var(--surface-2); color: var(--text-muted); }
+  .prorr-1 { background: #EBF8FF; color: #2B6CB0; }
+  .prorr-2 { background: var(--warning-bg); color: var(--warning); }
+  .prorr-3plus { background: var(--danger-bg); color: var(--danger); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--navy); color: #fff; padding: 12px 20px; border-radius: var(--radius-lg); font-size: 13px; font-weight: 500; box-shadow: var(--shadow-md); z-index: 300; display: flex; align-items: center; gap: 10px; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  .toast i { color: var(--gold-light); font-size: 18px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .total-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--gold-pale); border-radius: var(--radius); border: 1px solid rgba(184,150,90,0.3); font-weight: 600; margin-top: 8px; }
+  .total-label { font-size: 13px; color: var(--navy); }
+  .total-value { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--navy); }
+
+  .filial-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; border-radius: 5px; background: rgba(13,27,42,0.07); color: var(--text-secondary); }
+  .status-select { padding: 7px 12px; border: 1.5px solid var(--navy); border-radius: var(--radius); font-family: inherit; font-size: 13px; font-weight: 500; color: var(--navy); background: var(--surface); cursor: pointer; outline: none; width: 100%; margin-bottom: 12px; }
+
+  /* MOBILE SIDEBAR DRAWER */
+  .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 90; }
+  .sidebar-backdrop.open { display: block; }
+  @media (max-width: 900px) {
+    .sidebar { position: fixed; left: 0; top: 60px; bottom: 0; z-index: 95; transform: translateX(-100%); transition: transform 0.24s cubic-bezier(.4,0,.2,1), width 0.22s; width: 220px !important; }
+    .sidebar.mobile-open { transform: translateX(0); }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .main { padding: 18px; }
+    .page-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+    .topbar-date { display: none; }
+    .mobile-menu-btn { display: flex !important; }
+  }
+  @media (max-width: 560px) {
+    .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .page-actions .btn span { display: none; }
+    .filters-bar { gap: 8px; }
+    .filter-tag { display: none; }
+  }
+  .mobile-menu-btn { display: none; width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); align-items: center; justify-content: center; cursor: pointer; color: rgba(255,255,255,0.7); font-size: 20px; margin-right: 4px; }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; animation: viewIn 0.25s ease; }
+  @keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CONFIG / SETTINGS */
+  .config-shell { max-width: 920px; }
+  .config-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 18px; align-items: start; }
+  .config-card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+  .config-card-head { display: flex; align-items: center; gap: 13px; padding: 18px 22px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%); }
+  .config-card-icon { width: 40px; height: 40px; border-radius: 11px; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); display: flex; align-items: center; justify-content: center; color: var(--gold-light); font-size: 21px; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(212,176,122,0.25); }
+  .config-card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+  .config-card-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .config-card-body { padding: 22px; }
+
+  /* FORM ELEMENTS */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-label { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 7px; }
+  .form-label .req { color: var(--gold); }
+  .input-wrap { position: relative; display: flex; align-items: center; }
+  .input-wrap > i.lead { position: absolute; left: 12px; font-size: 17px; color: var(--text-muted); pointer-events: none; }
+  .form-input { width: 100%; padding: 10px 13px; border: 1px solid var(--border-strong); border-radius: var(--radius); font-family: inherit; font-size: 13.5px; color: var(--text-primary); background: var(--surface); outline: none; transition: border-color 0.15s, box-shadow 0.15s, background 0.15s; }
+  .input-wrap > i.lead + .form-input { padding-left: 38px; }
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-input:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(13,27,42,0.08); background: #fff; }
+  .form-input:disabled { background: var(--surface-2); color: var(--text-muted); cursor: not-allowed; }
+  .form-input.mono { font-family: 'DM Mono', monospace; font-size: 12.5px; letter-spacing: 0.2px; }
+  textarea.form-input { resize: vertical; min-height: 86px; line-height: 1.55; }
+  .form-hint { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 5px; }
+  .pw-toggle { position: absolute; right: 8px; width: 30px; height: 30px; border-radius: 7px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 17px; transition: all 0.15s; }
+  .pw-toggle:hover { background: var(--surface-2); color: var(--navy); }
+
+  /* SEGMENTED AUTH MODE */
+  .segmented { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px; gap: 3px; }
+  .seg-opt { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 7px; font-size: 12.5px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .seg-opt i { font-size: 15px; }
+  .seg-opt.active { background: var(--navy); color: #fff; box-shadow: var(--shadow); }
+
+  /* CONNECTION STRING */
+  .connstr-box { position: relative; }
+  .connstr-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; }
+  .connstr-btn { width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 15px; transition: all 0.15s; }
+  .connstr-btn:hover { background: var(--surface-2); color: var(--navy); border-color: var(--border-strong); }
+
+  /* TEST RESULT */
+  .test-result { display: none; align-items: flex-start; gap: 11px; padding: 13px 15px; border-radius: var(--radius); font-size: 13px; margin-top: 4px; border: 1px solid transparent; }
+  .test-result.show { display: flex; }
+  .test-result i { font-size: 19px; flex-shrink: 0; margin-top: 1px; }
+  .test-result .tr-title { font-weight: 600; }
+  .test-result .tr-detail { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  .test-result.ok { background: var(--success-bg); color: var(--success); border-color: rgba(39,103,73,0.2); }
+  .test-result.err { background: var(--danger-bg); color: var(--danger); border-color: rgba(197,48,48,0.2); }
+  .test-result.loading { background: var(--info-bg); color: var(--info); border-color: rgba(43,108,176,0.2); }
+  .spin { animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .config-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 22px; border-top: 1px solid var(--border); background: var(--surface-2); flex-wrap: wrap; }
+  .config-footer-meta { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+  .config-footer-actions { display: flex; gap: 10px; }
+  .btn-lg { padding: 10px 20px; font-size: 13.5px; }
+
+  /* STATUS PANEL (right column) */
+  .status-panel-item { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); }
+  .status-panel-item:last-child { border-bottom: none; }
+  .status-dot-lg { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: var(--text-muted); box-shadow: 0 0 0 4px rgba(136,150,165,0.15); }
+  .status-dot-lg.on { background: var(--success); box-shadow: 0 0 0 4px rgba(39,103,73,0.15); }
+  .status-dot-lg.off { background: var(--danger); box-shadow: 0 0 0 4px rgba(197,48,48,0.15); }
+  .status-dot-lg.wait { background: var(--warning); box-shadow: 0 0 0 4px rgba(192,86,33,0.15); }
+  .status-panel-label { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+  .status-panel-val { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
+  .status-panel-item .status-panel-right { margin-left: auto; font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-secondary); }
+  .ssl-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); margin-top: 4px; }
+  .ssl-row-label { font-size: 13px; font-weight: 500; }
+  .ssl-row-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 1px; }
+  .switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider { position: absolute; inset: 0; background: var(--border-strong); border-radius: 24px; cursor: pointer; transition: 0.2s; }
+  .switch .slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .switch input:checked + .slider { background: var(--navy); }
+  .switch input:checked + .slider::before { transform: translateX(20px); }
+
+  @media (max-width: 820px) {
+    .config-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MOBILE BACKDROP -->
+<div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="mobile-menu-btn" id="mobile-menu-btn"><i class="ti ti-menu-2"></i></div>
+    <div class="brand-mark"><span>AH</span></div>
+    <div>
+      <div class="brand-name">Austral Holding</div>
+      <div class="brand-sub">Gestão de Cobranças</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-date" id="topbar-date"></span>
+    <div class="topbar-user">
+      <div class="avatar-sm" id="user-avatar">—</div>
+      <span id="user-name">—</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Módulos</div>
+      <div class="nav-item active" data-view="provisao" data-label="Provisão de Receita"><i class="ti ti-receipt-2"></i> <span class="nav-item-label">Provisão de Receita</span> <span class="nav-badge" id="badge-total">0</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Sistema</div>
+      <div class="nav-item" data-view="config" data-label="Configurações"><i class="ti ti-settings"></i> <span class="nav-item-label">Configurações</span></div>
+    </div>
+    <div class="sidebar-toggle">
+      <div class="toggle-btn" id="toggle-btn" title="Recolher menu">
+        <i class="ti ti-chevrons-left" id="toggle-icon"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+   <!-- VIEW: PROVISÃO -->
+   <div class="view active" id="view-provisao">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Provisão de Receita — Acompanhamento</div>
+        <div class="page-subtitle">Relatório de vencimentos em atraso · Atualizado em <span id="updated-at">—</span></div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-gold" id="btn-reload"><i class="ti ti-refresh"></i> Atualizar SQL</button>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-danger">
+        <div class="kpi-label"><i class="ti ti-alert-triangle" style="font-size:14px;color:var(--danger)"></i> Crítico (+15 dias)</div>
+        <div class="kpi-value" id="kpi-critico">—</div>
+        <div class="kpi-sub" id="kpi-critico-val">carregando...</div>
+      </div>
+      <div class="kpi-card kpi-warning">
+        <div class="kpi-label"><i class="ti ti-clock" style="font-size:14px;color:var(--warning)"></i> Alto (8–14 dias)</div>
+        <div class="kpi-value" id="kpi-alto">—</div>
+        <div class="kpi-sub" id="kpi-alto-val">carregando...</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label"><i class="ti ti-calendar" style="font-size:14px;color:var(--info)"></i> Normal (1–7 dias)</div>
+        <div class="kpi-value" id="kpi-normal">—</div>
+        <div class="kpi-sub" id="kpi-normal-val">carregando...</div>
+      </div>
+      <div class="kpi-card kpi-gold">
+        <div class="kpi-label"><i class="ti ti-currency-real" style="font-size:14px;color:var(--gold)"></i> Total a receber</div>
+        <div class="kpi-value" id="kpi-total-val">—</div>
+        <div class="kpi-sub" id="kpi-total-count">carregando...</div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-bar">
+      <div class="search-box">
+        <i class="ti ti-search"></i>
+        <input type="text" id="search-input" placeholder="Buscar tomador, apólice, grupo econômico...">
+      </div>
+      <select class="filter-select" id="filter-filial">
+        <option value="">Todas as filiais</option>
+        <option>01-Rio de Janeiro</option>
+        <option>02-São Paulo</option>
+      </select>
+      <select class="filter-select" id="filter-prorr">
+        <option value="">Prorrogações</option>
+        <option value="0">Sem prorrogação</option>
+        <option value="1">1 prorrogação</option>
+        <option value="2+">2+ prorrogações</option>
+      </select>
+      <span class="filter-tag all" data-nivel="all">Todos</span>
+      <span class="filter-tag critico" data-nivel="critico">🔴 Crítico</span>
+      <span class="filter-tag alto" data-nivel="alto">🟠 Alto</span>
+      <span class="filter-tag normal" data-nivel="normal">🔵 Normal</span>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <div class="table-header">
+        <div>
+          <span class="table-title">Registros em Aberto</span>
+          &nbsp;&nbsp;
+          <span class="table-count" id="table-count">carregando...</span>
+        </div>
+        <button class="btn btn-ghost" id="btn-cobrar-selecionados" style="font-size:12px;padding:6px 12px;">
+          <i class="ti ti-send"></i> Cobrar Selecionados
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="checkbox-cell"><input type="checkbox" class="row-check" id="check-all"></th>
+              <th>Tomador</th>
+              <th>Grupo Econômico</th>
+              <th>Apólice</th>
+              <th>Filial</th>
+              <th>Vencimento</th>
+              <th>Dias Atraso</th>
+              <th>Prorrogações</th>
+              <th>Valor (R$)</th>
+              <th>Nível</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+   </div><!-- /view-provisao -->
+
+   <!-- VIEW: CONFIGURAÇÕES -->
+   <div class="view" id="view-config">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Configurações · Conexão SQL Server</div>
+        <div class="page-subtitle">Defina e valide a conectividade da aplicação com o banco de dados</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-ghost" id="btn-reset-config"><i class="ti ti-rotate"></i> <span>Restaurar</span></button>
+      </div>
+    </div>
+
+    <div class="config-shell">
+      <div class="config-grid">
+
+        <!-- LEFT: CONNECTION FORM -->
+        <div class="config-card">
+          <div class="config-card-head">
+            <div class="config-card-icon"><i class="ti ti-database-cog"></i></div>
+            <div>
+              <div class="config-card-title">Origem de Dados</div>
+              <div class="config-card-sub">Microsoft SQL Server · Provedor nativo</div>
+            </div>
+          </div>
+          <div class="config-card-body">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="db-server"><i class="ti ti-server"></i> Servidor <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class="ti ti-server-2 lead"></i>
+                  <input type="text" class="form-input" id="db-server" placeholder="ex: 10.0.0.12\SQLEXPRESS">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="db-port"><i class="ti ti-plug"></i> Porta</label>
+                <div class="input-wrap">
+                  <i class="ti ti-hash lead"></i>
+                  <input type="text" class="form-input" id="db-port" value="1433" placeholder="1433">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="db-name"><i class="ti ti-database"></i> Banco de dados <span class="req">*</span></label>
+              <div class="input-wrap">
+                <i class="ti ti-stack-2 lead"></i>
+                <input type="text" class="form-input" id="db-name" placeholder="ex: AustralProvisao">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label"><i class="ti ti-lock-cog"></i> Autenticação</label>
+              <div class="segmented" id="auth-mode">
+                <div class="seg-opt active" data-mode="sql"><i class="ti ti-key"></i> SQL Server</div>
+                <div class="seg-opt" data-mode="windows"><i class="ti ti-brand-windows"></i> Windows</div>
+              </div>
+            </div>
+
+            <div class="form-row" id="credentials-row">
+              <div class="form-group">
+                <label class="form-label" for="db-user"><i class="ti ti-user"></i> Usuário <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class="ti ti-user-circle lead"></i>
+                  <input type="text" class="form-input" id="db-user" placeholder="ex: sa" autocomplete="off">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="db-pass"><i class="ti ti-shield-lock"></i> Senha <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <i class="ti ti-key lead"></i>
+                  <input type="password" class="form-input" id="db-pass" placeholder="••••••••••" autocomplete="new-password">
+                  <button type="button" class="pw-toggle" id="pw-toggle" title="Mostrar/ocultar senha" aria-label="Mostrar ou ocultar senha">
+                    <i class="ti ti-eye" id="pw-icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ssl-row">
+              <div>
+                <div class="ssl-row-label"><i class="ti ti-lock-check" style="font-size:14px;vertical-align:-2px;color:var(--success);"></i> Criptografar conexão (TLS/SSL)</div>
+                <div class="ssl-row-sub">Recomendado · Encrypt=True · TrustServerCertificate</div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="db-encrypt" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="form-group">
+              <label class="form-label" for="db-connstr"><i class="ti ti-link"></i> Connection String</label>
+              <div class="connstr-box">
+                <div class="connstr-actions">
+                  <button type="button" class="connstr-btn" id="connstr-copy-btn" title="Copiar"><i class="ti ti-copy"></i></button>
+                  <button type="button" class="connstr-btn" id="connstr-mask-btn" title="Mostrar/ocultar senha na string"><i class="ti ti-eye-off"></i></button>
+                </div>
+                <textarea class="form-input mono" id="db-connstr" rows="3" placeholder="A string será gerada automaticamente a partir dos campos acima — ou cole a sua."></textarea>
+              </div>
+              <div class="form-hint"><i class="ti ti-shield-half-filled"></i> A senha é mascarada na exibição. Em produção, armazene-a em um cofre de segredos, nunca em texto plano.</div>
+            </div>
+
+            <div class="test-result" id="test-result"></div>
+
+          </div>
+          <div class="config-footer">
+            <div class="config-footer-meta"><i class="ti ti-clock"></i> <span id="last-test-meta">Nenhum teste executado nesta sessão</span></div>
+            <div class="config-footer-actions">
+              <button class="btn btn-ghost btn-lg" id="btn-test"><i class="ti ti-plug-connected"></i> Testar conexão</button>
+              <button class="btn btn-gold btn-lg" id="btn-save"><i class="ti ti-device-floppy"></i> Salvar configuração</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: STATUS PANEL -->
+        <div class="config-card">
+          <div class="config-card-head">
+            <div class="config-card-icon" style="background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 100%);color:var(--navy);"><i class="ti ti-activity-heartbeat"></i></div>
+            <div>
+              <div class="config-card-title">Status da Conectividade</div>
+              <div class="config-card-sub">Diagnóstico em tempo real</div>
+            </div>
+          </div>
+          <div class="config-card-body">
+            <div class="status-panel-item">
+              <div class="status-dot-lg" id="st-net"></div>
+              <div>
+                <div class="status-panel-label">Alcance do servidor</div>
+                <div class="status-panel-val" id="st-net-val">Aguardando teste</div>
+              </div>
+              <div class="status-panel-right" id="st-net-ms">—</div>
+            </div>
+            <div class="status-panel-item">
+              <div class="status-dot-lg" id="st-auth"></div>
+              <div>
+                <div class="status-panel-label">Autenticação</div>
+                <div class="status-panel-val" id="st-auth-val">Aguardando teste</div>
+              </div>
+              <div class="status-panel-right" id="st-auth-ms">—</div>
+            </div>
+            <div class="status-panel-item">
+              <div class="status-dot-lg" id="st-db"></div>
+              <div>
+                <div class="status-panel-label">Acesso ao banco</div>
+                <div class="status-panel-val" id="st-db-val">Aguardando teste</div>
+              </div>
+              <div class="status-panel-right" id="st-db-ms">—</div>
+            </div>
+            <div class="status-panel-item">
+              <div class="status-dot-lg" id="st-app"></div>
+              <div>
+                <div class="status-panel-label">Conexão da aplicação</div>
+                <div class="status-panel-val" id="st-app-val">Aguardando teste</div>
+              </div>
+              <div class="status-panel-right" id="st-app-ms">—</div>
+            </div>
+
+            <div class="divider"></div>
+            <div style="font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">Resumo</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:14px;border-radius:var(--radius);background:var(--surface-2);border:1px solid var(--border);">
+              <i class="ti ti-info-circle" style="font-size:20px;color:var(--text-muted);" id="summary-icon"></i>
+              <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.5;" id="summary-text">
+                Preencha os dados de conexão e clique em <strong>Testar conexão</strong> para validar a comunicação com o SQL Server.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+   </div><!-- /view-config -->
+  </main>
+</div>
+
+<!-- MODAL COBRANÇA -->
+<div class="overlay" id="modal-overlay">
+  <div class="modal" id="modal-cobranca">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:17px;font-weight:600;color:var(--text-primary);">Realizar Cobrança</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Gestão de cobrança e acompanhamento de status</div>
+      </div>
+      <button class="modal-close" id="modal-close-btn"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- PERSON CARD -->
+      <div class="person-card">
+        <div class="person-avatar" id="modal-avatar">—</div>
+        <div>
+          <div class="person-name" id="modal-nome">—</div>
+          <div class="person-grupo" id="modal-grupo">—</div>
+          <div style="margin-top:6px;" id="modal-filial-tag"></div>
+        </div>
+        <div style="margin-left:auto;text-align:right;">
+          <div id="modal-nivel-badge"></div>
+        </div>
+      </div>
+
+      <!-- CONTACT INFO -->
+      <div class="modal-section-title">Informações de Contato</div>
+      <div class="person-contact">
+        <div class="contact-item">
+          <i class="ti ti-mail"></i>
+          <div>
+            <div class="contact-label">E-mail</div>
+            <div class="contact-value" id="modal-email">—</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <i class="ti ti-phone"></i>
+          <div>
+            <div class="contact-label">Telefone</div>
+            <div class="contact-value" id="modal-fone">—</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <i class="ti ti-user"></i>
+          <div>
+            <div class="contact-label">Responsável</div>
+            <div class="contact-value" id="modal-resp">—</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <i class="ti ti-building"></i>
+          <div>
+            <div class="contact-label">CNPJ</div>
+            <div class="contact-value" id="modal-cnpj">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEBTS -->
+      <div class="modal-section-title">Títulos em Aberto</div>
+      <div id="modal-debts"></div>
+
+      <div class="divider"></div>
+
+      <!-- STATUS FLOW -->
+      <div class="modal-section-title">Status da Cobrança</div>
+      <div class="status-flow" id="status-flow"></div>
+
+      <div class="modal-section-title">Selecionar status</div>
+      <select class="status-select" id="status-select"></select>
+
+      <!-- OBSERVAÇÕES -->
+      <div class="modal-section-title">Observações / Histórico</div>
+      <textarea class="obs-textarea" id="modal-obs" placeholder="Registre aqui as tratativas, datas de contato, promessas de pagamento e demais informações relevantes..."></textarea>
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="modal-cancel-btn">Cancelar</button>
+        <button class="btn btn-primary" id="modal-save-btn"><i class="ti ti-device-floppy"></i> Salvar Registro</button>
+        <button class="btn btn-gold" id="modal-confirm-btn"><i class="ti ti-send"></i> Confirmar Cobrança</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-check-circle"></i> <span id="toast-msg">Ação realizada.</span></div>
+
+<script>
+/* ============ CONFIG / CONSTS ============ */
+const API_BASE = '';
+const TABLE_COLSPAN = 11;
+
+// Usuario exibido no topo (parametrizado em um unico ponto).
+const USER = { name: 'Felipe Santos', initials: 'FS' };
+
+// Conjunto unico de status da cobranca. Alimenta tanto o fluxo visual
+// (status-flow) quanto o select, evitando divergencias entre os dois.
+const STATUSES = [
+  { id: 1, label: 'Pendente', hint: 'Aguardando ação', icon: 'ti-clock-play' },
+  { id: 2, label: 'Em Cobrança', hint: 'Primeiro contato realizado', icon: 'ti-send' },
+  { id: 3, label: 'Negociando', hint: 'Contato estabelecido, tratando', icon: 'ti-messages' },
+  { id: 4, label: 'Agendado', hint: 'Pagamento prometido para data específica', icon: 'ti-calendar-event' },
+  { id: 5, label: 'Pago', hint: 'Confirmado recebimento', icon: 'ti-check' },
+];
+const DEFAULT_STEP = 2;
+
+/* ============ STATE ============ */
+let DATA = [];                 // registros carregados de /api/provisao
+let renderedRows = [];         // registros atualmente exibidos (index -> record)
+let activeFilter = 'all';
+let currentRecord = null;
+let currentStep = DEFAULT_STEP;
+let cobStatus = {};            // status de cobranca por apolice (sessao)
+
+let authMode = 'sql';
+let connMasked = true;         // mascara a senha na connection string exibida
+let manualConn = false;        // usuario editou a connection string manualmente
+let testing = false;
+let configLoaded = false;
+
+/* ============ DOM ============ */
+const $ = (id) => document.getElementById(id);
+const el = {
+  tableBody: $('table-body'), tableCount: $('table-count'), badgeTotal: $('badge-total'),
+  searchInput: $('search-input'), filterFilial: $('filter-filial'), filterProrr: $('filter-prorr'),
+  checkAll: $('check-all'), modalOverlay: $('modal-overlay'),
+  statusFlow: $('status-flow'), statusSelect: $('status-select'),
+  toast: $('toast'), toastMsg: $('toast-msg'),
+  sidebar: $('sidebar'), sidebarBackdrop: $('sidebar-backdrop'),
+  toggleIcon: $('toggle-icon'), toggleBtn: $('toggle-btn'),
+};
+
+/* ============ HELPERS ============ */
+function getNivel(dias) {
+  if (dias >= 15) return 'critico';
+  if (dias >= 8) return 'alto';
+  return 'normal';
+}
+function getInitials(nome) {
+  const parts = (nome || '').trim().split(' ');
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return (nome || '').substring(0, 2).toUpperCase();
+}
+function formatBRL(v) {
+  return 'R$ ' + (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+function getStatus(id) {
+  return STATUSES.find((s) => s.id === Number(id));
+}
+
+/* ============ RENDER ============ */
+function getFilteredRows() {
+  const search = el.searchInput.value.toLowerCase();
+  const filial = el.filterFilial.value;
+  const prorrFilt = el.filterProrr.value;
+
+  return DATA.filter((r) => {
+    const nivel = getNivel(r.dias);
+    if (activeFilter !== 'all' && nivel !== activeFilter) return false;
+    if (filial && r.filial !== filial) return false;
+    const p = r.prorr || 0;
+    if (prorrFilt === '0' && p !== 0) return false;
+    if (prorrFilt === '1' && p !== 1) return false;
+    if (prorrFilt === '2+' && p < 2) return false;
+    if (search) {
+      const hay = ((r.nome || '') + (r.grupo || '') + (r.apolice || '')).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
+function rowHtml(r, i) {
+  const nivel = getNivel(r.dias);
+  const prorr = r.prorr || 0;
+  const status = cobStatus[r.apolice];
+
+  const levelBadge = nivel === 'critico'
+    ? '<span class="badge badge-danger">Crítico</span>'
+    : nivel === 'alto'
+      ? '<span class="badge badge-warning">Alto</span>'
+      : '<span class="badge badge-info">Normal</span>';
+
+  const prorrCls = prorr === 0 ? 'prorr-0' : prorr === 1 ? 'prorr-1' : prorr === 2 ? 'prorr-2' : 'prorr-3plus';
+  const dotClass = nivel === 'critico' ? 'filled-danger' : nivel === 'alto' ? 'filled-warning' : 'filled-info';
+  const filledDots = Math.min(Math.ceil(r.dias / 7), 5);
+  let dotsHtml = '';
+  for (let d = 0; d < 5; d++) dotsHtml += `<div class="dot ${d < filledDots ? dotClass : ''}"></div>`;
+
+  const diasColor = nivel === 'critico' ? 'var(--danger)' : nivel === 'alto' ? 'var(--warning)' : 'var(--info)';
+  const isAlto = r.vl_total > 100000;
+  const statusTag = status
+    ? `<span class="badge badge-success" style="margin-left:4px;font-size:10px;">${escapeHtml(status)}</span>`
+    : '';
+
+  return `
+    <td class="checkbox-cell"><input type="checkbox" class="row-check row-chk" data-idx="${i}"></td>
+    <td class="td-company" title="${escapeHtml(r.nome)}">${escapeHtml(r.nome)}${statusTag}</td>
+    <td class="td-grupo">${escapeHtml(r.grupo) || '—'}</td>
+    <td class="cell-mono">${escapeHtml(r.apolice)}</td>
+    <td><span class="filial-tag">${escapeHtml((r.filial || '').split('-')[0])}</span></td>
+    <td class="cell-mono dark">${escapeHtml(r.venc)}</td>
+    <td>
+      <div class="atraso-bar">
+        <div class="atraso-dots">${dotsHtml}</div>
+        <span style="font-weight:600;font-size:13px;color:${diasColor};">${r.dias}d</span>
+      </div>
+    </td>
+    <td><span class="prorr-pill ${prorrCls}">${prorr}</span></td>
+    <td class="valor-cell ${isAlto ? 'alto' : ''}">${formatBRL(r.vl_total)}</td>
+    <td>${levelBadge}</td>
+    <td><button class="action-btn cobrar" data-action="cobrar"><i class="ti ti-send" style="font-size:13px;"></i> Cobrar</button></td>
+  `;
+}
+
+function renderStateRow(cls, html) {
+  renderedRows = [];
+  el.tableBody.innerHTML = `<tr class="table-state ${cls}"><td colspan="${TABLE_COLSPAN}">${html}</td></tr>`;
+}
+
+function renderLoadingState() {
+  renderStateRow('', '<i class="ti ti-loader-2 spin state-icon"></i>Carregando registros...');
+  el.tableCount.textContent = 'carregando...';
+}
+function renderEmptyState() {
+  renderStateRow('', '<i class="ti ti-inbox state-icon"></i>Nenhum registro em aberto.');
+  el.tableCount.textContent = '0 registros exibidos';
+}
+function renderErrorState(message) {
+  renderStateRow('error',
+    `<i class="ti ti-plug-connected-x state-icon"></i>Não foi possível carregar os dados.<br>${escapeHtml(message)}`
+    + '<div class="state-link"><button class="btn btn-ghost" data-action="goto-config"><i class="ti ti-settings"></i> Abrir Configurações</button></div>');
+  el.tableCount.textContent = 'indisponível';
+}
+
+function renderTable() {
+  const rows = getFilteredRows();
+  renderedRows = rows;
+  if (rows.length === 0) {
+    el.tableBody.innerHTML = `<tr class="table-state"><td colspan="${TABLE_COLSPAN}"><i class="ti ti-filter-off state-icon"></i>Nenhum registro corresponde aos filtros.</td></tr>`;
+  } else {
+    el.tableBody.innerHTML = '';
+    rows.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      tr.dataset.idx = i;
+      tr.innerHTML = rowHtml(r, i);
+      el.tableBody.appendChild(tr);
+    });
+  }
+  el.tableCount.textContent = `${rows.length} registros exibidos`;
+}
+
+function calcKPIs() {
+  let critico=0, alto=0, normal=0, totalVal=0;
+  let criticoVal=0, altoVal=0, normalVal=0;
+  DATA.forEach(r => {
+    totalVal += r.vl_total;
+    const n = getNivel(r.dias);
+    if (n==='critico') { critico++; criticoVal+=r.vl_total; }
+    else if (n==='alto') { alto++; altoVal+=r.vl_total; }
+    else { normal++; normalVal+=r.vl_total; }
+  });
+  $('kpi-critico').textContent = critico;
+  $('kpi-critico-val').textContent = formatBRL(criticoVal);
+  $('kpi-alto').textContent = alto;
+  $('kpi-alto-val').textContent = formatBRL(altoVal);
+  $('kpi-normal').textContent = normal;
+  $('kpi-normal-val').textContent = formatBRL(normalVal);
+  $('kpi-total-val').textContent = formatBRL(totalVal);
+  $('kpi-total-count').textContent = DATA.length + ' registros no total';
+  $('badge-total').textContent = DATA.length;
+}
+
+/* ============ MODAL ============ */
+// Gera o fluxo de status e o select a partir do conjunto unico STATUSES.
+function buildStatusUI() {
+  el.statusFlow.innerHTML = STATUSES.map((s) =>
+    `<div class="flow-step" data-step="${s.id}"><i class="ti ${s.icon}"></i>${escapeHtml(s.label)}</div>`
+  ).join('');
+  el.statusSelect.innerHTML = STATUSES.map((s) =>
+    `<option value="${s.id}">${escapeHtml(s.label)} — ${escapeHtml(s.hint)}</option>`
+  ).join('');
+}
+
+function openModal(r) {
+  currentRecord = r;
+  const nivel = getNivel(r.dias);
+
+  $('modal-avatar').textContent = getInitials(r.nome);
+  $('modal-nome').textContent = r.nome || '—';
+  $('modal-grupo').textContent = r.grupo || 'Sem grupo econômico';
+  $('modal-filial-tag').innerHTML = `<span class="filial-tag"><i class="ti ti-map-pin" style="font-size:12px;"></i> ${escapeHtml(r.filial)}</span>`;
+
+  const badge = nivel === 'critico'
+    ? `<span class="badge badge-danger"><i class="ti ti-alert-triangle"></i> ${r.dias} dias em atraso</span>`
+    : nivel === 'alto'
+      ? `<span class="badge badge-warning"><i class="ti ti-clock"></i> ${r.dias} dias em atraso</span>`
+      : `<span class="badge badge-info"><i class="ti ti-calendar"></i> ${r.dias} dias em atraso</span>`;
+  $('modal-nivel-badge').innerHTML = badge;
+
+  // Contato vem do proprio registro (backend); usa "—" quando ausente.
+  $('modal-email').textContent = r.email || '—';
+  $('modal-fone').textContent = r.fone || '—';
+  $('modal-resp').textContent = r.resp || '—';
+  $('modal-cnpj').textContent = r.cnpj || '—';
+
+  const nome = r.nome || '';
+  $('modal-debts').innerHTML = `
+    <div class="debt-table-row">
+      <div>
+        <div style="font-weight:500;font-size:13px;">${escapeHtml(nome.substring(0, 35))}${nome.length > 35 ? '...' : ''}</div>
+        <div class="debt-apolice">Apólice ${escapeHtml(r.apolice)} · Endosso ${escapeHtml(r.endosso)} · Parcela ${escapeHtml(r.parcela)}</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="debt-valor" style="color:var(--text-primary);">${formatBRL(r.vl_total)}</div>
+        <div class="debt-date">Venc. ${escapeHtml(r.venc)} · Orig. ${escapeHtml(r.venc_orig)}</div>
+      </div>
+    </div>
+    <div class="total-row">
+      <span class="total-label"><i class="ti ti-currency-real" style="font-size:14px;vertical-align:-2px;"></i> Total em aberto</span>
+      <span class="total-value">${formatBRL(r.vl_total)}</span>
+    </div>
+    <div style="margin-top:8px;font-size:12px;color:var(--text-muted);">
+      <i class="ti ti-repeat" style="font-size:13px;vertical-align:-1px;"></i>
+      Prorrogações: <strong>${r.prorr || 0}x</strong> &nbsp;·&nbsp;
+      <i class="ti ti-calendar-off" style="font-size:13px;vertical-align:-1px;"></i>
+      Data original: ${escapeHtml(r.venc_orig)}
+    </div>
+  `;
+
+  setStep(DEFAULT_STEP);
+  $('modal-obs').value = '';
+  el.modalOverlay.classList.add('open');
+}
+
+function setStep(step) {
+  currentStep = Number(step);
+  el.statusFlow.querySelectorAll('.flow-step').forEach((node) => {
+    const n = Number(node.dataset.step);
+    node.classList.remove('active', 'done');
+    if (n < currentStep) node.classList.add('done');
+    else if (n === currentStep) node.classList.add('active');
+  });
+  el.statusSelect.value = String(currentStep);
+}
+
+function closeModal() {
+  el.modalOverlay.classList.remove('open');
+}
+
+function iniciarCobranca() {
+  if (!currentRecord) return;
+  cobStatus[currentRecord.apolice] = getStatus(DEFAULT_STEP).label;
+  showToast('Cobrança registrada para ' + (currentRecord.nome || '').split(' ')[0] + '!');
+  closeModal();
+  renderTable();
+}
+
+function salvarCobranca() {
+  if (!currentRecord) return;
+  const status = getStatus(el.statusSelect.value);
+  cobStatus[currentRecord.apolice] = status ? status.label : '';
+  showToast('Registro salvo com sucesso.');
+  closeModal();
+  renderTable();
+}
+
+function showToast(msg) {
+  el.toastMsg.textContent = msg;
+  el.toast.classList.add('show');
+  setTimeout(() => el.toast.classList.remove('show'), 3000);
+}
+
+function setAllChecks(checked) {
+  el.tableBody.querySelectorAll('.row-chk').forEach((c) => { c.checked = checked; });
+}
+
+function cobrarSelecionados() {
+  const checked = el.tableBody.querySelectorAll('.row-chk:checked');
+  if (checked.length === 0) { showToast('Nenhum registro selecionado.'); return; }
+  showToast(checked.length + ' cobrança(s) iniciadas em lote.');
+}
+
+/* ============ DATA LOADING (backend) ============ */
+async function loadData() {
+  renderLoadingState();
+  try {
+    const res = await fetch(API_BASE + '/api/provisao', { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    DATA = Array.isArray(rows) ? rows : [];
+    calcKPIs();
+    if (DATA.length === 0) renderEmptyState();
+    else renderTable();
+  } catch (err) {
+    // Backend indisponivel ou conexao nao configurada: mostra estado de erro.
+    console.warn('Falha ao carregar /api/provisao:', err);
+    DATA = [];
+    calcKPIs();
+    renderErrorState(err.message);
+  }
+}
+
+/* ============ SIDEBAR / VIEW ============ */
+let sidebarCollapsed = false;
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  el.sidebar.classList.toggle('collapsed', sidebarCollapsed);
+  el.toggleIcon.className = sidebarCollapsed ? 'ti ti-chevrons-right' : 'ti ti-chevrons-left';
+  el.toggleBtn.title = sidebarCollapsed ? 'Expandir menu' : 'Recolher menu';
+}
+
+function toggleMobileSidebar() {
+  const open = el.sidebar.classList.toggle('mobile-open');
+  el.sidebarBackdrop.classList.toggle('open', open);
+}
+function closeMobileSidebar() {
+  el.sidebar.classList.remove('mobile-open');
+  el.sidebarBackdrop.classList.remove('open');
+}
+
+function switchView(name) {
+  document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
+  const target = $('view-' + name);
+  if (target) target.classList.add('active');
+}
+
+function goToConfig() {
+  document.querySelectorAll('.nav-item').forEach((n) => n.classList.remove('active'));
+  document.querySelector('.nav-item[data-view="config"]')?.classList.add('active');
+  switchView('config');
+  loadConfigForm();
+}
+
+/* ============ CONFIG VIEW ============ */
+/* Pre-preenche o formulario de configuracao com GET /api/config. */
+async function loadConfigForm() {
+  if (configLoaded) return;
+  try {
+    const res = await fetch(API_BASE + '/api/config', { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return;
+    const cfg = await res.json();
+    if (!cfg || !cfg.isConfigured) return;
+
+    $('db-server').value = cfg.server || '';
+    $('db-port').value = cfg.port || '1433';
+    $('db-name').value = cfg.database || '';
+    $('db-user').value = cfg.user || '';
+    // A senha nunca volta em texto plano; exibimos o placeholder mascarado.
+    if (cfg.passwordMask) $('db-pass').value = '';
+    $('db-encrypt').checked = cfg.encrypt !== false;
+    setAuthMode(cfg.authMode === 'windows' ? 'windows' : 'sql');
+    configLoaded = true;
+  } catch (err) {
+    console.warn('Falha ao carregar /api/config:', err);
+  }
+}
+
+function setAuthMode(mode) {
+  authMode = mode;
+  document.querySelectorAll('#auth-mode .seg-opt').forEach(o => o.classList.toggle('active', o.dataset.mode === mode));
+  const isWin = mode === 'windows';
+  $('db-user').disabled = isWin;
+  $('db-pass').disabled = isWin;
+  $('credentials-row').style.opacity = isWin ? '0.5' : '1';
+  manualConn = false;
+  buildConnString();
+}
+
+function togglePassword() {
+  const inp = $('db-pass');
+  const icon = $('pw-icon');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  icon.className = show ? 'ti ti-eye-off' : 'ti ti-eye';
+}
+
+function maskSecret(pw) {
+  if (!pw) return '';
+  return '•'.repeat(Math.min(pw.length, 12));
+}
+
+function buildConnString() {
+  if (manualConn) return; // don't overwrite a hand-edited string
+  const server = $('db-server').value.trim();
+  const port = $('db-port').value.trim();
+  const db = $('db-name').value.trim();
+  const user = $('db-user').value.trim();
+  const pwRaw = $('db-pass').value;
+  const encrypt = $('db-encrypt').checked;
+
+  let dataSource = server || '<servidor>';
+  if (port && port !== '1433') dataSource += ',' + port;
+
+  let parts = [];
+  parts.push('Server=' + dataSource);
+  parts.push('Database=' + (db || '<banco>'));
+  if (authMode === 'windows') {
+    parts.push('Trusted_Connection=True');
+  } else {
+    parts.push('User Id=' + (user || '<usuario>'));
+    const pwShown = connMasked ? maskSecret(pwRaw) || '<senha>' : (pwRaw || '<senha>');
+    parts.push('Password=' + pwShown);
+  }
+  parts.push('Encrypt=' + (encrypt ? 'True' : 'False'));
+  if (encrypt) parts.push('TrustServerCertificate=True');
+  parts.push('Connection Timeout=30');
+
+  $('db-connstr').value = parts.join(';') + ';';
+}
+
+function toggleConnMask() {
+  connMasked = !connMasked;
+  document.querySelector('#connstr-mask-btn i').className = connMasked ? 'ti ti-eye-off' : 'ti ti-eye';
+  manualConn = false;
+  buildConnString();
+}
+
+function markManualConn() { manualConn = true; }
+
+function copyConnString() {
+  const ta = $('db-connstr');
+  navigator.clipboard?.writeText(ta.value).then(
+    () => showToast('Connection string copiada.'),
+    () => showToast('Não foi possível copiar.')
+  );
+}
+
+function resetConfigForm() {
+  ['db-server','db-name','db-user','db-pass','db-connstr'].forEach(id => $(id).value = '');
+  $('db-port').value = '1433';
+  $('db-encrypt').checked = true;
+  manualConn = false;
+  setAuthMode('sql');
+  resetStatusPanel();
+  $('test-result').className = 'test-result';
+  $('last-test-meta').textContent = 'Nenhum teste executado nesta sessão';
+  showToast('Formulário restaurado.');
+}
+
+function collectConfig() {
+  return {
+    server: $('db-server').value.trim(),
+    port: $('db-port').value.trim() || '1433',
+    database: $('db-name').value.trim(),
+    authMode: authMode,
+    user: $('db-user').value.trim(),
+    password: $('db-pass').value,
+    encrypt: $('db-encrypt').checked,
+    trustServerCertificate: $('db-encrypt').checked,
+    connectionTimeout: 30,
+  };
+}
+
+async function saveConfig() {
+  const cfg = collectConfig();
+  if (!cfg.server || !cfg.database) { showToast('Informe servidor e banco de dados.'); return; }
+  if (cfg.authMode === 'sql' && (!cfg.user || !cfg.password)) {
+    showToast('Usuário e senha são obrigatórios na autenticação SQL Server.');
+    return;
+  }
+  try {
+    const res = await fetch(API_BASE + '/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfg),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || ('HTTP ' + res.status));
+    showToast('Configuração de conexão salva.');
+    loadData();
+  } catch (err) {
+    showToast('Falha ao salvar: ' + err.message);
+  }
+}
+
+/* ---- STATUS PANEL ---- */
+const STATUS_IDS = ['net','auth','db','app'];
+function resetStatusPanel() {
+  STATUS_IDS.forEach(s => {
+    $('st-' + s).className = 'status-dot-lg';
+    $('st-' + s + '-val').textContent = 'Aguardando teste';
+    $('st-' + s + '-ms').textContent = '—';
+  });
+}
+function setStatus(s, state, val, ms) {
+  $('st-' + s).className = 'status-dot-lg ' + state;
+  $('st-' + s + '-val').textContent = val;
+  $('st-' + s + '-ms').textContent = ms || '—';
+}
+
+function showTestResult(kind, title, detail) {
+  const box = $('test-result');
+  box.className = 'test-result show ' + kind;
+  const icon = kind === 'ok' ? 'ti-circle-check' : kind === 'err' ? 'ti-alert-circle' : 'ti-loader-2 spin';
+  box.innerHTML = `<i class="ti ${icon}"></i><div><div class="tr-title">${escapeHtml(title)}</div><div class="tr-detail">${escapeHtml(detail)}</div></div>`;
+}
+
+function applyTestStep(s, step) {
+  if (!step) return;
+  const state = step.state === 'on' ? 'on' : step.state === 'off' ? 'off' : 'wait';
+  const ms = (typeof step.ms === 'number') ? step.ms + ' ms' : '—';
+  setStatus(s, state, step.message || 'Aguardando teste', state === 'wait' ? '—' : ms);
+}
+
+async function testConnection() {
+  if (testing) return;
+  const cfg = collectConfig();
+
+  if (!cfg.server) { showTestResult('err', 'Servidor não informado', 'Preencha o endereço do servidor SQL Server.'); return; }
+  if (!cfg.database) { showTestResult('err', 'Banco de dados não informado', 'Informe o nome do banco de dados de destino.'); return; }
+  if (cfg.authMode === 'sql' && (!cfg.user || !cfg.password)) {
+    showTestResult('err', 'Credenciais incompletas', 'Usuário e senha são obrigatórios na autenticação SQL Server.');
+    return;
+  }
+
+  testing = true;
+  const btn = $('btn-test');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2 spin"></i> Testando...';
+  resetStatusPanel();
+  showTestResult('loading', 'Estabelecendo conexão...', 'Validando rede, autenticação e acesso ao banco de dados.');
+
+  try {
+    const res = await fetch(API_BASE + '/api/config/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfg),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.message || ('HTTP ' + res.status));
+
+    applyTestStep('net', data.net);
+    applyTestStep('auth', data.auth);
+    applyTestStep('db', data.db);
+    applyTestStep('app', data.app);
+
+    const stamp = new Date().toLocaleTimeString('pt-BR');
+    if (data.ok) {
+      showTestResult('ok', 'Conexão estabelecida com sucesso',
+        `${cfg.server} · ${cfg.database} · autenticação ${cfg.authMode === 'windows' ? 'Windows' : 'SQL Server'} · latência total ~${data.totalMs} ms`);
+      $('last-test-meta').textContent = 'Último teste: ' + stamp + ' · sucesso';
+      $('summary-icon').className = 'ti ti-circle-check';
+      $('summary-icon').style.color = 'var(--success)';
+      $('summary-text').innerHTML = 'A aplicação conseguiu conectar e autenticar no banco <strong>' + cfg.database + '</strong>. Conexão pronta para uso.';
+    } else {
+      showTestResult('err', 'Falha na conexão', data.message || 'Não foi possível concluir o diagnóstico.');
+      $('last-test-meta').textContent = 'Último teste: ' + stamp + ' · falha';
+      $('summary-icon').className = 'ti ti-alert-triangle';
+      $('summary-icon').style.color = 'var(--danger)';
+      $('summary-text').innerHTML = data.message || 'Verifique os dados de conexão e tente novamente.';
+    }
+  } catch (err) {
+    showTestResult('err', 'Falha na conexão', err.message);
+    $('summary-icon').className = 'ti ti-alert-triangle';
+    $('summary-icon').style.color = 'var(--danger)';
+    $('summary-text').innerHTML = 'Erro ao contatar o backend: ' + err.message;
+  } finally {
+    testing = false;
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-plug-connected"></i> Testar conexão';
+  }
+}
+
+/* ============ WIRING ============ */
+function wireEvents() {
+  // Topbar / sidebar
+  $('mobile-menu-btn').addEventListener('click', toggleMobileSidebar);
+  el.sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+  el.toggleBtn.addEventListener('click', toggleSidebar);
+
+  // Provisão view
+  $('btn-reload').addEventListener('click', loadData);
+  $('btn-cobrar-selecionados').addEventListener('click', cobrarSelecionados);
+  el.checkAll.addEventListener('click', () => setAllChecks(el.checkAll.checked));
+  el.searchInput.addEventListener('input', renderTable);
+  el.filterFilial.addEventListener('change', renderTable);
+  el.filterProrr.addEventListener('change', renderTable);
+  document.querySelectorAll('.filter-tag').forEach((tag) => {
+    tag.addEventListener('click', () => {
+      activeFilter = tag.dataset.nivel;
+      document.querySelectorAll('.filter-tag').forEach((t) => { t.style.opacity = t === tag ? '1' : '0.55'; });
+      renderTable();
+    });
+  });
+
+  // Table (delegação): linha abre modal, botão "Cobrar" idem, checkbox só marca.
+  el.tableBody.addEventListener('click', (e) => {
+    if (e.target.closest('[data-action="goto-config"]')) { goToConfig(); return; }
+    if (e.target.closest('.row-chk')) return;
+    const tr = e.target.closest('tr[data-idx]');
+    if (!tr) return;
+    const rec = renderedRows[Number(tr.dataset.idx)];
+    if (rec) openModal(rec);
+  });
+
+  // Navegação entre views
+  document.querySelectorAll('.nav-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth <= 900) closeMobileSidebar();
+      if (!item.dataset.view) return;
+      document.querySelectorAll('.nav-item').forEach((n) => n.classList.remove('active'));
+      item.classList.add('active');
+      switchView(item.dataset.view);
+      if (item.dataset.view === 'config') loadConfigForm();
+    });
+  });
+
+  // Modal
+  el.modalOverlay.addEventListener('click', (e) => { if (e.target === el.modalOverlay) closeModal(); });
+  $('modal-close-btn').addEventListener('click', closeModal);
+  $('modal-cancel-btn').addEventListener('click', closeModal);
+  $('modal-save-btn').addEventListener('click', salvarCobranca);
+  $('modal-confirm-btn').addEventListener('click', iniciarCobranca);
+  el.statusFlow.addEventListener('click', (e) => {
+    const step = e.target.closest('.flow-step');
+    if (step) setStep(step.dataset.step);
+  });
+  el.statusSelect.addEventListener('change', () => setStep(el.statusSelect.value));
+
+  // Config view
+  document.querySelectorAll('#auth-mode .seg-opt').forEach((o) =>
+    o.addEventListener('click', () => setAuthMode(o.dataset.mode)));
+  ['db-server', 'db-port', 'db-name', 'db-user', 'db-pass'].forEach((id) =>
+    $(id).addEventListener('input', buildConnString));
+  $('db-encrypt').addEventListener('change', buildConnString);
+  $('db-connstr').addEventListener('input', markManualConn);
+  $('pw-toggle').addEventListener('click', togglePassword);
+  $('connstr-copy-btn').addEventListener('click', copyConnString);
+  $('connstr-mask-btn').addEventListener('click', toggleConnMask);
+  $('btn-test').addEventListener('click', testConnection);
+  $('btn-save').addEventListener('click', saveConfig);
+  $('btn-reset-config').addEventListener('click', resetConfigForm);
+}
+
+/* ============ INIT ============ */
+function init() {
+  $('user-avatar').textContent = USER.initials;
+  $('user-name').textContent = USER.name;
+
+  const now = new Date();
+  $('topbar-date').textContent = now.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+  $('updated-at').textContent = now.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  buildStatusUI();
+  setAuthMode('sql');
+  wireEvents();
+  loadData();
+}
+
+init();
+</script>
+</body>
+</html>

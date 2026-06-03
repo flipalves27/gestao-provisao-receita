@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>GestaoProvisao.Api</RootNamespace>
+    <AssemblyName>GestaoProvisao.Api</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+  </ItemGroup>
+
+  <!-- O index.html canonico vive na raiz do projeto; copiamos para wwwroot para que a API o sirva. -->
+  <Target Name="CopyFrontend" BeforeTargets="Build;Run">
+    <MakeDir Directories="wwwroot" />
+    <Copy SourceFiles="..\index.html" DestinationFiles="wwwroot\index.html" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
